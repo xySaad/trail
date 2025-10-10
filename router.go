@@ -19,14 +19,21 @@ func New[T any](dependency T) Router[T] {
 }
 
 type Handler[T any] = func(c *Context[T])
+type Middleware[T any] = func(c *Context[T]) bool
 
-func (router *Router[T]) Add(pattern string, handler Handler[T]) {
+func (router *Router[T]) Add(pattern string, handler Handler[T], middlewares ...Middleware[T]) {
 	router.ServeMux.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
-		handler(&Context[T]{
+		ctx := &Context[T]{
 			Dep:      router.Dependency,
 			Request:  r,
 			Response: w,
-		})
+		}
+		for _, mw := range middlewares {
+			if !mw(ctx) {
+				return
+			}
+		}
+		handler(ctx)
 	})
 }
 

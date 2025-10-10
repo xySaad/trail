@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github-bot/middlewares"
+	"github-bot/types"
 	"net/http"
 
 	bot "github.com/xySaad/gocord"
@@ -15,13 +17,13 @@ func main() {
 	bot, err := bot.New(BOT_TOKEN)
 	if err != nil {
 		fmt.Println(err)
-		return
+		// don't return to skip invalid bot token error
+		// return
 	}
-	defer bot.Close()
 	fmt.Println("Bot is running...")
 
-	router := trail.New(bot)
-	router.Add("GET /", Webhook)
+	router := trail.New(types.Dependecies{Bot: bot, SkipSignature: false})
+	router.Add("GET /", Webhook, middlewares.GithubSignature)
 
 	err = http.ListenAndServe(SERVER_ADDRESS, router)
 	if err != nil {
