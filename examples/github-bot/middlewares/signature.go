@@ -4,15 +4,13 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"github-bot/models"
 	"net/http"
-
-	"github.com/xySaad/gocord"
-	"github.com/xySaad/trail"
 )
 
 const WEBHOOK_SECRET = "wxpx+#Jxxxxxsq>bLxxxxxx*vq"
 
-func GithubSignature(c *trail.Context[*gocord.Bot]) bool {
+func GithubSignature(c *models.Context) bool {
 	// simulate valid signature
 	// return true
 

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github-bot/middlewares"
+	"github-bot/models"
 	"net/http"
 
 	bot "github.com/xySaad/gocord"
@@ -21,8 +22,7 @@ func main() {
 	}
 	// defer bot.Close()
 	fmt.Println("Bot is running...")
-
-	router := trail.New(bot)
+	router := trail.New(&models.Context{Bot: bot})
 	router.Add("GET /", Webhook, middlewares.GithubSignature)
 
 	err = http.ListenAndServe(SERVER_ADDRESS, router)

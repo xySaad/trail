@@ -7,15 +7,18 @@ import (
 	"net/http"
 )
 
-type Context[T any] struct {
-	Dep      T
+type Context struct {
 	Request  *http.Request
 	Response http.ResponseWriter
 	body     []byte
 }
 
+func (c *Context) GetBase() *Context {
+	return c
+}
+
 // Reads the body and cache it for later calls
-func (c Context[T]) Body() ([]byte, error) {
+func (c Context) Body() ([]byte, error) {
 	if c.body != nil {
 		return c.body, nil
 	}
@@ -32,13 +35,13 @@ func (c Context[T]) Body() ([]byte, error) {
 	return c.body, nil
 }
 
-func (c Context[T]) BodyNoErr() []byte {
+func (c Context) BodyNoErr() []byte {
 	body, _ := c.Body()
 	return body
 }
 
 // Reads the body and unmarshal it to data
-func (c Context[T]) Json(data any) error {
+func (c Context) Json(data any) error {
 	body, err := c.Body()
 	if err != nil {
 		return err
@@ -47,11 +50,11 @@ func (c Context[T]) Json(data any) error {
 	return json.Unmarshal(body, data)
 }
 
-func (c Context[T]) Write(data []byte) (int, error) {
+func (c Context) Write(data []byte) (int, error) {
 	return c.Response.Write(data)
 }
 
-func (c Context[T]) WriteJson(v any) (int, error) {
+func (c Context) WriteJson(v any) (int, error) {
 	data, err := json.Marshal(v)
 	if err != nil {
 		return 0, err
@@ -60,6 +63,6 @@ func (c Context[T]) WriteJson(v any) (int, error) {
 	return c.Response.Write(data)
 }
 
-func (c Context[T]) Header(key string) string {
+func (c Context) Header(key string) string {
 	return c.Request.Header.Get(key)
 }

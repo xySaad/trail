@@ -2,41 +2,42 @@ package trail
 
 import "net/http"
 
-type Router[T any] struct {
-	Dependency T
-	ServeMux   *http.ServeMux
+type WithContext interface {
+	GetBase() *Context
 }
 
-func Default() Router[any] {
-	return Router[any]{}
+type Router[C WithContext] struct {
+	base C
+	mux  *http.ServeMux
 }
 
-func New[T any](dependency T) Router[T] {
-	return Router[T]{
-		Dependency: dependency,
-		ServeMux:   http.DefaultServeMux,
+func New[C WithContext](base C) *Router[C] {
+	return &Router[C]{
+		base: base,
+		mux:  http.NewServeMux(),
 	}
 }
 
-type Handler[T any] = func(c *Context[T])
-type Middleware[T any] = func(c *Context[T]) bool
+type Handler[C WithContext] func(c C)
+type Middleware[C WithContext] func(c C) bool
 
-func (router *Router[T]) Add(pattern string, handler Handler[T], middlewares ...Middleware[T]) {
-	router.ServeMux.HandleFunc(pattern, func(w http.ResponseWriter, r *http.Request) {
-		ctx := &Context[T]{
-			Dep:      router.Dependency,
-			Request:  r,
-			Response: w,
+func (router *Router[C]) Add(pattern string, handler Handler[C], middlewares ...Middleware[C]) {
+	router.mux.HandleFunc(pattern, func(res http.ResponseWriter, req *http.Request) {
+		c := router.base
+		*c.GetBase() = Context{
+			Request:  req,
+			Response: res,
 		}
+
 		for _, mw := range middlewares {
-			if !mw(ctx) {
+			if !mw(c) {
 				return
 			}
 		}
-		handler(ctx)
+		handler(c)
 	})
 }
 
-func (router Router[T]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	router.ServeMux.ServeHTTP(w, r)
+func (router *Router[C]) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	router.mux.ServeHTTP(w, req)
 }
