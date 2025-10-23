@@ -1,6 +1,8 @@
 package trail
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type WithContext interface {
 	GetBase() *Context
@@ -14,6 +16,13 @@ type Router[C WithContext] struct {
 func New[C WithContext](base C) *Router[C] {
 	return &Router[C]{
 		base: base,
+		mux:  http.NewServeMux(),
+	}
+}
+
+func Default() *Router[*Context] {
+	return &Router[*Context]{
+		base: &Context{},
 		mux:  http.NewServeMux(),
 	}
 }

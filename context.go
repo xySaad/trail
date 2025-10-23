@@ -66,3 +66,15 @@ func (c Context) WriteJson(v any) (int, error) {
 func (c Context) Header(key string) string {
 	return c.Request.Header.Get(key)
 }
+
+func (c Context) Query(key string) string {
+	return c.Request.URL.Query().Get(key)
+}
+
+func (c Context) Redirect(url string, code int) {
+	http.Redirect(c.Response, c.Request, url, code)
+}
+
+func (c Context) Ok() {
+	c.Response.WriteHeader(200)
+}
