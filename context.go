@@ -63,6 +63,7 @@ func (c Context) WriteJson(v any, status int) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	c.SetHeader("Content-Type", "application/json")
 	return c.Write(data, status)
 }
 
@@ -80,4 +81,8 @@ func (c Context) Redirect(url string, code int) {
 
 func (c Context) Ok() {
 	c.Response.WriteHeader(200)
+}
+
+func (c *Context) SetHeader(key, value string) {
+	c.Response.Header().Set(key, value)
 }
