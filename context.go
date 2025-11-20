@@ -50,17 +50,17 @@ func (c Context) Json(data any) error {
 	return json.Unmarshal(body, data)
 }
 
-func (c Context) Write(data []byte) (int, error) {
+func (c Context) Write(data []byte, status int) (int, error) {
+	c.Response.WriteHeader(status)
 	return c.Response.Write(data)
 }
 
-func (c Context) WriteJson(v any) (int, error) {
+func (c Context) WriteJson(v any, status int) (int, error) {
 	data, err := json.Marshal(v)
 	if err != nil {
 		return 0, err
 	}
-
-	return c.Response.Write(data)
+	return c.Write(data, status)
 }
 
 func (c Context) Header(key string) string {
