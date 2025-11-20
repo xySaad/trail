@@ -54,6 +54,9 @@ func (c Context) Write(data []byte, status int) (int, error) {
 	c.Response.WriteHeader(status)
 	return c.Response.Write(data)
 }
+func (c Context) Text(data string, status int) (int, error) {
+	return c.Write([]byte(data), status)
+}
 
 func (c Context) WriteJson(v any, status int) (int, error) {
 	data, err := json.Marshal(v)
