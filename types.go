@@ -1,3 +1,3 @@
 package trail
 
-type Object = map[any]any
+type Object = map[string]any
